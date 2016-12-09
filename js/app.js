@@ -4,24 +4,6 @@ $(document).ready(function () {
         this.price = price;
     };
 
-    var totalSplitBill = [];
-    var tipAmount = function (diner) {
-        var totalTip = 0;
-        for (var i = 0; i < diner.dishes.length; i++) {
-            totalTip += diner.dishes[i].price * .2;
-        }
-        return totalTip;
-    };
-    var totalBill = 0;
-
-    var finalBill = function (input) {
-
-        for (var i = 0; i < input.length; i++) {
-            totalBill += Number(input[i]);
-        }
-        return totalBill;
-    }
-
     var soup = new menuItem('soup', 1.99);
     var salad = new menuItem('salad', 2.99);
     var sandwich = new menuItem('sandwich', 3.99);
@@ -29,44 +11,67 @@ $(document).ready(function () {
     var Diner = function (name, dishes) {
         this.name = name;
         this.dishes = dishes;
-        var price = 0;
-
+        //Fill Price 
+        var total = 0;
         for (var i = 0; i < dishes.length; i++) {
-            price += dishes[i].price
+            total += dishes[i].price
         }
 
-        var tax = price * .09;
-
-        var tip = (price + tax) * .2;
-
-        var total = price + tax + tip;
-
-        totalSplitBill.push(total);
-
+        this.price = total;
+        //Methods
+        this.getTax = function () {
+            return this.price * .09
+        };
+        this.getTip = function () {
+            return (this.price + this.getTax()) * .2
+        };
+        this.getTotalwithTip = function () {
+            return this.getTip() + this.getTax() + this.price;
+        }
+        this.getTotalwithoutTip = function () {
+            return this.price + this.getTax();
+        }
 
     };
+
+    var Bill = function (diners) {
+        this.diners = diners;
+        this.totalPrint = function () {
+            var total = 0;
+            for (var i = 0; i < diners.length; i++) {
+                total += diners[i].getTotalwithoutTip();
+            }
+            console.log('Bill total w/o tip:' + total);
+        }
+        this.tipsOwed = function () {
+            for (var i = 0; i < diners.length; i++) {
+                console.log(diners[i].name + "-> " +
+                    diners[i].getTip());
+            }
+        }
+        this.printDetailedBill = function () {
+            console.log('Check details')
+            for (var i = 0; i < diners.length; i++) {
+                console.log(diners[i].name + ": ")
+                console.log('  Total: ' + '$' +
+                    diners[i].getTotalwithTip().toFixed(2));
+                console.log('  Tax: ' + '$' +
+                    diners[i].getTax().toFixed(2));
+                console.log('  Tip: ' + '$' +
+                    diners[i].getTip().toFixed(2));
+            }
+
+        }
+    }
 
     var Diner1 = new Diner('rene', [soup, salad]);
     var Diner2 = new Diner('steve', [salad]);
     var Diner3 = new Diner('jon', [salad, sandwich]);
 
 
-    console.log(totalSplitBill);
-    console.log(finalBill(totalSplitBill));
+    var Bill1 = new Bill([Diner1, Diner2, Diner3]);
 
-    console.log(Diner1);
-    console.log(Diner2);
-    console.log(Diner3);
-
-    var allDiners = {
-        diners: [Diner1,
-        Diner2,
-        Diner3],
-        tips: [tipAmount(Diner1), tipAmount(Diner2), tipAmount(Diner3)]
-    };
-
-
-    console.log(allDiners);
+    Bill1.printDetailedBill();
 
 
 });
